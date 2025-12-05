@@ -1,0 +1,49 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+.env/
+.env*/
+.venv/
+pip-wheel-metadata/
+site-packages/
+
+# Streamlit local files
+.streamlit/secrets.toml
+.streamlit/state/
+.streamlit/cache/
+.streamlit/*.log
+
+# Test and tooling caches
+.coverage
+.pytest_cache/
+.mypy_cache/
+.tox/
+.nox/
+.cache/
+
+# Logs and temp files
+*.log
+*.tmp
+tmp/
+temp/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Git and CI
+.git/
+.gitignore
+.gitattributes
