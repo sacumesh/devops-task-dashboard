@@ -175,5 +175,10 @@ def create_task_fragment():
                     st.rerun()
 
 
-task_list_fragment()
-create_task_fragment()
+def main():
+    task_list_fragment()
+    st.markdown("---")
+    create_task_fragment()
+
+if __name__ == "__main__":
+    main()

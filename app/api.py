@@ -1,8 +1,12 @@
 # api.py
 import requests
+import os
 from typing import List, Dict, Optional, Tuple
+from dotenv import load_dotenv
 
-API_BASE_URL = "http://localhost:8080/api/"
+load_dotenv()  # loads .env from project root
+
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8080/api/")
 
 _session = requests.Session()
 _session.headers.update({"Content-Type": "application/json"})
