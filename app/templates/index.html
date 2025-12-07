@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Task Manager</h1>
+        <form action="{{ url_for('create_task') }}" method="POST" class="mb-4">
+            <input type="text" name="title" placeholder="Task Title" required>
+            <textarea name="description" placeholder="Task Description"></textarea>
+            <button type="submit" class="btn btn-primary">Create Task</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <ul class="list-group">
+            {% for task in tasks %}
+                <li class="list-group-item">
+                    <strong>{{ task.title }}</strong> - {{ task.status }}
+                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-warning btn-sm float-right">Edit</a>
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-sm float-right mr-2">Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
