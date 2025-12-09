@@ -1,4 +1,3 @@
-# Multi-stage build for smaller, reproducible images
 # Stage 1: build wheels only (no runtime bloat)
 FROM python:3.11-slim AS build
 
@@ -71,8 +70,8 @@ RUN chown -R ${APP_UID}:${APP_GID} /app
 
 USER appuser:appgroup
 
-# Document the port Streamlit listens on
-EXPOSE 5000
+ENV SERVER_PORT=5000
+EXPOSE ${SERVER_PORT}
 
 # Lightweight healthcheck (tweak if you have a dedicated health endpoint)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
