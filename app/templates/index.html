@@ -8,30 +8,73 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-5">Task Manager</h1>
-        <form action="{{ url_for('create_task') }}" method="POST" class="mb-4">
-            <input type="text" name="title" placeholder="Task Title" required>
-            <textarea name="description" placeholder="Task Description"></textarea>
-            <button type="submit" class="btn btn-primary">Create Task</button>
-        </form>
+        <div class="mt-5">
+            <div class="d-flex align-items-center mb-3">
+                <h1 class="mb-0">Task Manager</h1>
+                <span class="badge badge-info ml-3">API v{{ api_version }}</span>
+            </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
+                <div class="mb-3">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 {% endfor %}
+                </div>
             {% endif %}
-        {% endwith %}
+            {% endwith %}
 
-        <ul class="list-group">
-            {% for task in tasks %}
-                <li class="list-group-item">
-                    <strong>{{ task.title }}</strong> - {{ task.status }}
-                    <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-warning btn-sm float-right">Edit</a>
-                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-sm float-right mr-2">Delete</a>
-                </li>
-            {% endfor %}
-        </ul>
+            {% if health_check %}
+            <div class="card mb-4">
+                <div class="card-header">Create a new task</div>
+                <div class="card-body">
+                    <form action="{{ url_for('create_task') }}" method="POST">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                class="form-control"
+                                placeholder="Enter task title"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Add a brief description"
+                            ></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Task</button>
+                    </form>
+                </div>
+            </div>
+
+            <ul class="list-group">
+                {% for task in tasks %}
+                    <li class="list-group-item">
+                        <strong>{{ task.title }}</strong> - {{ task.status }}
+                        <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-warning btn-sm float-right">Edit</a>
+                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-sm float-right mr-2">Delete</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="alert alert-danger" role="alert">
+                API health check failed. Please try again later.
+            </div>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

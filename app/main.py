@@ -1,8 +1,13 @@
+import api
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash
-import api  # Import your existing API client
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'  # Set your secret key
+# Load environment variables once from project root
+load_dotenv()
+
+app = Flask(__name__)# Set your secret key
+app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')
 
 @app.route('/')
 def index():
@@ -10,7 +15,23 @@ def index():
     if error:
         flash(f"Error fetching tasks: {error}", 'error')
         tasks = []
-    return render_template('index.html', tasks=tasks)
+
+    api_version, error = api.api_version()  # Fetch API version from the API client
+    if error:
+        flash(f"Error fetching API version: {error}", 'error')
+        api_version = None
+
+    # Health check: consider service healthy only if status == 'UP'
+    is_healthy = False
+    health, err = api.health()
+    if err:
+        flash(f"Health check error: {err}", 'error')
+    elif isinstance(health, dict) and health.get('status') == 'UP':
+        is_healthy = True
+    else:
+        flash(f"Service health: {health.get('status') if isinstance(health, dict) else 'UNKNOWN'}", 'error')
+
+    return render_template('index.html', tasks=tasks, api_version=api_version, health_check=is_healthy)
 
 @app.route('/create', methods=['POST'])
 def create_task():
@@ -56,4 +77,5 @@ def delete_task(task_id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.getenv('PORT', '5000'))
+    app.run(debug=True, host='0.0.0.0', port=port)
