@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-TASK_MANAGER_API_URL: str = os.getenv("TASK_MANAGER_API_URL", "http://localhost:8080/api/")
+MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", "http://localhost:8080/api/")
 
 # Session initialization
 _session = requests.Session()
@@ -55,7 +55,7 @@ class ValidationError(ApiError):
 
 def _url(path: str) -> str:
     """Construct an absolute URL from a relative path."""
-    base = TASK_MANAGER_API_URL.rstrip("/")
+    base = MANAGER_API_URL.rstrip("/")
     suffix = path.lstrip("/")
     return f"{base}/{suffix}"
 
