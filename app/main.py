@@ -1,6 +1,6 @@
 import api
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from dotenv import load_dotenv
 
 # Load environment variables once from project root
@@ -75,6 +75,11 @@ def delete_task(task_id):
     else:
         flash('Task deleted successfully!', 'success')
     return redirect(url_for('index'))
+
+@app.route('/health')
+def health():
+
+    return jsonify(status="UP"), 200
 
 if __name__ == '__main__':
     port = int(os.getenv('SERVER_PORT', '5000'))
