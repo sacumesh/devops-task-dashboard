@@ -9,7 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", "http://localhost:8080/api/")
+MANGER_HOST: str = os.getenv("MANAGER_HOST", "localhost")
+MANGER_PORT: str = os.getenv("MANAGER_PORT", "8080")
+MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", f"http://{MANGER_HOST}:{MANGER_PORT}/api/")
 
 # Session initialization
 _session = requests.Session()
