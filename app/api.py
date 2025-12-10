@@ -11,7 +11,7 @@ load_dotenv()
 # Configuration
 MANGER_HOST: str = os.getenv("MANAGER_HOST", "localhost")
 MANGER_PORT: str = os.getenv("MANAGER_PORT", "8080")
-MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", f"http://{MANGER_HOST}:{MANGER_PORT}/api/")
+MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", f"http://{MANGER_HOST}:{MANGER_PORT}")
 
 # Session initialization
 _session = requests.Session()
@@ -147,7 +147,7 @@ def _ui_message(error: ApiError) -> str:
 # Public API: return (data, error) for UI-friendly handling
 def health() -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     try:
-        data = _request("GET", "/tasks/health")
+        data = _request("GET", "actuator/health")
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
@@ -155,7 +155,7 @@ def health() -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
 
 def get_tasks() -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
     try:
-        data = _request("GET", "/tasks")
+        data = _request("GET", "api/tasks")
         # Accept both list and dict-wrapped, normalize to list for caller
         if isinstance(data, dict) and "data" in data and isinstance(data["data"], list):
             return data["data"], None
@@ -168,7 +168,7 @@ def get_tasks() -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
 
 def get_task(task_id: str, ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     try:
-        data = _request("GET", f"/tasks/{task_id}")
+        data = _request("GET", f"api/tasks/{task_id}")
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
@@ -179,7 +179,7 @@ def create_task(title: str, description: str = "", status: Optional[str] = None,
     if status:
         payload["status"] = status
     try:
-        data = _request("POST", "/tasks", json=payload)
+        data = _request("POST", "api/tasks", json=payload)
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
@@ -188,7 +188,7 @@ def create_task(title: str, description: str = "", status: Optional[str] = None,
 def update_task(task_id: str, title: str, description: str, status: str, ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     payload: Dict[str, Any] = {"id": task_id, "title": title, "description": description, "status": status}
     try:
-        data = _request("PUT", "/tasks", json=payload)
+        data = _request("PUT", "api/tasks", json=payload)
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
@@ -196,7 +196,7 @@ def update_task(task_id: str, title: str, description: str, status: str, ) -> Tu
 
 def delete_task(task_id: str, ) -> Tuple[bool, Optional[str]]:
     try:
-        _request("DELETE", f"/tasks/{task_id}")
+        _request("DELETE", f"api/tasks/{task_id}")
         return True, None
     except ApiError as e:
         return False, _ui_message(e)
@@ -204,7 +204,7 @@ def delete_task(task_id: str, ) -> Tuple[bool, Optional[str]]:
 
 def api_version() -> Tuple[Optional[str], Optional[str]]:
     try:
-        data = _request("GET", "/version")
+        data = _request("GET", "api/version")
         version = data.get("apiVersion") if isinstance(data, dict) else None
         return version, None
     except ApiError as e:
