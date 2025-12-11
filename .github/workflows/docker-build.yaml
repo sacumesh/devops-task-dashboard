@@ -22,6 +22,5 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}:pr-${{ github.event.pull_request.number || github.run_number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
