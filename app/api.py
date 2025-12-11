@@ -1,7 +1,7 @@
 # api.py
 import os
-from typing import List, Dict, Optional, Tuple, Any
 import requests
+from typing import List, Dict, Optional, Tuple, Any
 from requests import Response
 from dotenv import load_dotenv
 
@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-API_BASE_URL: str = os.getenv("API_BASE_URL", "http://localhost:8080/api/")
-DEFAULT_TIMEOUT: int = 10
-HEALTH_TIMEOUT: int = 5
+MANGER_HOST: str = os.getenv("MANAGER_HOST", "localhost")
+MANGER_PORT: str = os.getenv("MANAGER_PORT", "8080")
+MANAGER_API_URL: str = os.getenv("MANAGER_API_URL", f"http://{MANGER_HOST}:{MANGER_PORT}")
 
 # Session initialization
 _session = requests.Session()
@@ -57,7 +57,7 @@ class ValidationError(ApiError):
 
 def _url(path: str) -> str:
     """Construct an absolute URL from a relative path."""
-    base = API_BASE_URL.rstrip("/")
+    base = MANAGER_API_URL.rstrip("/")
     suffix = path.lstrip("/")
     return f"{base}/{suffix}"
 
@@ -105,12 +105,12 @@ def _handle_response(resp: Response) -> Dict[str, Any]:
     return data if isinstance(data, dict) else {"data": data}
 
 
-def _request(method: str, path: str, *, json: Optional[Dict[str, Any]] = None, timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+def _request(method: str, path: str, *, json: Optional[Dict[str, Any]] = None, ) -> Dict[str, Any]:
     """
     Core request executor. Converts low-level exceptions to domain errors.
     """
     try:
-        resp = _session.request(method=method, url=_url(path), json=json, timeout=timeout)
+        resp = _session.request(method=method, url=_url(path), json=json)
         return _handle_response(resp)
     except requests.Timeout:
         raise TimeoutError("Request timed out. Check your network and try again.")
@@ -145,17 +145,17 @@ def _ui_message(error: ApiError) -> str:
 
 
 # Public API: return (data, error) for UI-friendly handling
-def health(timeout: int = HEALTH_TIMEOUT) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def health() -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     try:
-        data = _request("GET", "/tasks/health", timeout=timeout)
+        data = _request("GET", "actuator/health")
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
 
 
-def get_tasks(timeout: int = DEFAULT_TIMEOUT) -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
+def get_tasks() -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
     try:
-        data = _request("GET", "/tasks", timeout=timeout)
+        data = _request("GET", "api/tasks")
         # Accept both list and dict-wrapped, normalize to list for caller
         if isinstance(data, dict) and "data" in data and isinstance(data["data"], list):
             return data["data"], None
@@ -166,37 +166,46 @@ def get_tasks(timeout: int = DEFAULT_TIMEOUT) -> Tuple[Optional[List[Dict[str, A
         return None, _ui_message(e)
 
 
-def get_task(task_id: str, timeout: int = DEFAULT_TIMEOUT) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def get_task(task_id: str, ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     try:
-        data = _request("GET", f"/tasks/{task_id}", timeout=timeout)
+        data = _request("GET", f"api/tasks/{task_id}")
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
 
 
-def create_task(title: str, description: str = "", status: Optional[str] = None, timeout: int = DEFAULT_TIMEOUT) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def create_task(title: str, description: str = "", status: Optional[str] = None, ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     payload: Dict[str, Any] = {"title": title, "description": description}
     if status:
         payload["status"] = status
     try:
-        data = _request("POST", "/tasks", json=payload, timeout=timeout)
+        data = _request("POST", "api/tasks", json=payload)
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
 
 
-def update_task(task_id: str, title: str, description: str, status: str, timeout: int = DEFAULT_TIMEOUT) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def update_task(task_id: str, title: str, description: str, status: str, ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     payload: Dict[str, Any] = {"id": task_id, "title": title, "description": description, "status": status}
     try:
-        data = _request("PUT", "/tasks", json=payload, timeout=timeout)
+        data = _request("PUT", "api/tasks", json=payload)
         return data, None
     except ApiError as e:
         return None, _ui_message(e)
 
 
-def delete_task(task_id: str, timeout: int = DEFAULT_TIMEOUT) -> Tuple[bool, Optional[str]]:
+def delete_task(task_id: str, ) -> Tuple[bool, Optional[str]]:
     try:
-        _request("DELETE", f"/tasks/{task_id}", timeout=timeout)
+        _request("DELETE", f"api/tasks/{task_id}")
         return True, None
     except ApiError as e:
         return False, _ui_message(e)
+    
+
+def api_version() -> Tuple[Optional[str], Optional[str]]:
+    try:
+        data = _request("GET", "api/version")
+        version = data.get("apiVersion") if isinstance(data, dict) else None
+        return version, None
+    except ApiError as e:
+        return None, _ui_message(e)
