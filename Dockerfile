@@ -63,17 +63,13 @@ ARG APP_GID=1001
 RUN groupadd -g ${APP_GID} appgroup && \
     useradd -u ${APP_UID} -g appgroup -M -d /app -s /usr/sbin/nologin appuser && \
     mkdir -p /app/.streamlit
-COPY --chown=${APP_UID}:${APP_GID} app/ /app/
+COPY --chown=${APP_UID}:${APP_GID} src/ /app/
 RUN chown -R ${APP_UID}:${APP_GID} /app
 
 USER appuser:appgroup
 
 ENV SERVER_PORT=5000
 EXPOSE ${SERVER_PORT}
-
-# Lightweight healthcheck (tweak if you have a dedicated health endpoint)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:8501/ || exit 1
 
 # Use tini as PID 1 for proper signal handling, then run Flask via Gunicorn
 ENTRYPOINT ["tini", "--"]
