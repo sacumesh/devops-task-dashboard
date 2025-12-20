@@ -1,0 +1,33 @@
+version: "1.0"
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-rootpass}
+      MARIADB_DATABASE: ${DATABASE_NAME:-tasks}
+      MARIADB_USER: ${DATABASE_USER:-user}
+      MARIADB_PASSWORD: ${DATABASE_PASSWORD:-test}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+
+  manager:
+    image: sacumesh/devops-task-manager:1.0.0
+    container_name: manager
+    environment:
+      SERVER_PORT: ${MANAGER_PORT:-8080}
+      DATABASE_HOST: ${DATABASE_HOST:-mariadb}
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_NAME: ${DATABASE_NAME:-tasks}
+      DATABASE_USER: ${DATABASE_USER:-user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-test}
+    ports:
+      - "${MANAGER_PORT:-8080}:${MANAGER_PORT:-8080}"
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+volumes:
+  mariadb_data: { }
