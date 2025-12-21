@@ -32,9 +32,9 @@ For manual backend setup, see: https://github.com/sacumesh/devops-task-manager
 ### Configuration
 Defaults (from docker-compose-backend.yaml). Override via environment variables or a .env file:
 ```bash
-SERVER_PORT=5000
-MANAGER_HOST=localhost
-MANAGER_PORT=8080
+export SERVER_PORT=5000
+export MANAGER_HOST=localhost
+export MANAGER_PORT=8080
 ```
 
 ### Run locally
