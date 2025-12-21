@@ -30,7 +30,7 @@ docker compose -f docker-compose-backend.yaml up -d
 For manual backend setup, see: https://github.com/sacumesh/devops-task-manager
 
 ### Configuration
-Defaults (from docker-compose-backend.yaml). Override via environment variables or a .env file:
+Defaults (from docker-compose-backend.yaml). Before running the application export the following environment variables or source them via ```bash.env``` file:
 ```bash
 export SERVER_PORT=5000
 export MANAGER_HOST=localhost
