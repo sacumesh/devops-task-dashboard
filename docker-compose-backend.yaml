@@ -5,7 +5,7 @@ services:
     image: mariadb:12.1
     container_name: mariadb
     environment:
-      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-rootpass}
+      MARIADB_ROOT_PASSWORD: ${DATABASE_PASSWORD:-rootpass}
       MARIADB_DATABASE: ${DATABASE_NAME:-tasks}
       MARIADB_USER: ${DATABASE_USER:-user}
       MARIADB_PASSWORD: ${DATABASE_PASSWORD:-test}
